@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | PlantCare AI</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef7ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            width: 380px;
+            max-width: 92%;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px #00000015;
+        }
+        h2 { color: #176b3a; text-align: center; }
+        p { text-align: center; color: #666; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 12px;
+            background: #176b3a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover { background: #10542c; }
+        .message { color: #c0392b; }
+        a { color: #176b3a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🌱 PlantCare AI</h2>
+        <p>Create your account</p>
+
+        {% if error %}
+            <p class="message">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <input type="text" name="username"
+                   placeholder="Enter username" required>
+
+            <input type="email" name="email"
+                   placeholder="Enter email" required>
+
+            <input type="password" name="password"
+                   placeholder="Create password"
+                   minlength="8" required>
+
+            <input type="password" name="confirm_password"
+                   placeholder="Confirm password"
+                   minlength="8" required>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p>Already have an account?
+            <a href="{{ url_for('login') }}">Login</a>
+        </p>
+    </div>
+</body>
+</html>

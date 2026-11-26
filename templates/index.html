@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantCare AI | Disease Detection</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f8f3;
+            color: #243b2b;
+        }
+
+        header {
+            background: #176b3a;
+            color: white;
+            padding: 22px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 25px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #c7edcf;
+        }
+
+        .welcome-user {
+            color: white;
+            font-weight: bold;
+        }
+
+        nav a.logout-btn {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        nav a.logout-btn:hover {
+            background: #b02a37;
+            color: white;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 45px 20px 30px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            color: #176b3a;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            color: #617268;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .upload-card,
+        .result-card,
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            margin-bottom: 30px;
+        }
+
+        .upload-card {
+            max-width: 750px;
+            margin: 0 auto 35px;
+            text-align: center;
+        }
+
+        .upload-card h2,
+        .result-card > h2,
+        .info-card > h2 {
+            color: #176b3a;
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px dashed #80b995;
+            border-radius: 10px;
+            background: #f7fcf8;
+        }
+
+        button {
+            background: #21864b;
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #145e33;
+        }
+
+        button:disabled {
+            background: #aab8ae;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: #64796b;
+        }
+
+        .secondary-btn:hover {
+            background: #46594b;
+        }
+
+        .error {
+            color: #c62828;
+            margin-top: 15px;
+        }
+
+        .upload-divider {
+            margin: 25px 0;
+            color: #718176;
+            font-weight: bold;
+        }
+
+        .camera-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5faf6;
+            border-radius: 12px;
+        }
+
+        .camera-section h3 {
+            color: #176b3a;
+            margin-bottom: 15px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 500px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 12px;
+            background: #1c2920;
+        }
+
+        #cameraVideo {
+            display: none;
+        }
+
+        #capturedPreview {
+            display: none;
+            object-fit: contain;
+            max-height: 350px;
+        }
+
+        #cameraMessage {
+            color: #617268;
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+
+        .prediction {
+            background: #e9f7ed;
+            border-left: 6px solid #21864b;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .prediction h3 {
+            color: #176b3a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .prediction p {
+            font-size: 20px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .image-box {
+            text-align: center;
+            background: #f5faf6;
+            padding: 18px;
+            border-radius: 15px;
+        }
+
+        .image-box h3 {
+            color: #176b3a;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 280px;
+            object-fit: contain;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .image-box p {
+            font-size: 15px;
+            color: #68776c;
+            margin-top: 15px;
+        }
+
+        .disease-status {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .disease-status h2 {
+            color: #176b3a;
+            margin-bottom: 15px;
+        }
+
+        .status {
+            display: inline-block;
+            background: #fff0e8;
+            color: #a3421b;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status.healthy {
+            background: #e4f6e9;
+            color: #176b3a;
+        }
+
+        .description {
+            background: #f0f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .description h3 {
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-section {
+            background: #f8faf8;
+            border: 1px solid #e2eee5;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .info-section h3 {
+            color: #176b3a;
+            margin-bottom: 15px;
+        }
+
+        .info-section ul {
+            padding-left: 20px;
+            line-height: 1.9;
+            color: #526458;
+        }
+
+        .note {
+            margin-top: 25px;
+            padding: 18px;
+            background: #fff8e6;
+            border-radius: 8px;
+            color: #765d20;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .download-section {
+            text-align: center;
+            margin: 30px 0 10px;
+        }
+
+        .download-button {
+            background: #176b3a;
+            padding: 15px 30px;
+            font-size: 16px;
+        }
+
+        .download-button:hover {
+            background: #104d29;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #176b3a;
+            color: white;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 800px) {
+            .image-grid,
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            nav {
+                gap: 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌿 PlantCare AI</h2>
+
+    <nav>
+        <span class="welcome-user">
+            Welcome, {{ session.get('username', 'User') }}!
+        </span>
+
+        <a href="/">Home</a>
+        <a href="/history">Prediction History</a>
+        <a href="/performance">Performance Dashboard</a>
+
+        {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('admin') }}">Admin Dashboard</a>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Plant Disease Detection System</h1>
+
+    <p>
+        Detect plant diseases using Deep Learning
+        and understand predictions with Grad-CAM.
+    </p>
+</section>
+
+<div class="container">
+
+    <!-- IMAGE UPLOAD AND CAMERA -->
+
+    <section class="upload-card">
+
+        <h2>🌱 Detect Plant Disease</h2>
+
+        <form method="POST"
+              enctype="multipart/form-data"
+              id="predictionForm">
+
+            <h3>Option 1: Upload Leaf Image</h3>
+
+            <input
+                type="file"
+                id="leafFile"
+                name="file"
+                accept=".jpg,.jpeg,.png"
+                required
+            >
+
+            <div class="upload-divider">OR</div>
+
+            <div class="camera-section">
+
+                <h3>📷 Option 2: Live Camera Detection</h3>
+
+                <p>
+                    Start your camera and capture a clear plant leaf image.
+                </p>
+
+                <video
+                    id="cameraVideo"
+                    class="camera-preview"
+                    autoplay
+                    playsinline
+                ></video>
+
+                <canvas
+                    id="cameraCanvas"
+                    style="display:none;"
+                ></canvas>
+
+                <img
+                    id="capturedPreview"
+                    class="camera-preview"
+                    alt="Captured plant leaf"
+                >
+
+                <p id="cameraMessage">
+                    Camera is not started.
+                </p>
+
+                <button type="button" id="startCamera">
+                    Start Camera
+                </button>
+
+                <button
+                    type="button"
+                    id="captureImage"
+                    disabled
+                >
+                    Capture Image
+                </button>
+
+                <button
+                    type="button"
+                    id="stopCamera"
+                    class="secondary-btn"
+                    disabled
+                >
+                    Stop Camera
+                </button>
+
+                <button
+                    type="button"
+                    id="retakeImage"
+                    class="secondary-btn"
+                    style="display:none;"
+                >
+                    Retake Image
+                </button>
+
+            </div>
+
+            <br>
+
+            <button type="submit" id="predictButton">
+                Detect Disease
+            </button>
+
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+    </section>
+
+
+    <!-- PREDICTION RESULTS -->
+
+    {% if result %}
+
+    <section class="result-card">
+
+        <h2>🌱 Disease Detection Results</h2>
+
+        <div class="prediction">
+
+            <h3>
+                {{ result.replace('___', ' - ').replace('_', ' ') }}
+            </h3>
+
+            <p>
+                <strong>Confidence:</strong>
+                {{ confidence }}%
+            </p>
+
+        </div>
+
+        <!-- ORIGINAL IMAGE AND GRAD-CAM -->
+
+        <div class="image-grid">
+
+            <div class="image-box">
+
+                <h3>Original Image</h3>
+
+                <img
+                    src="{{ url_for('static', filename=image_path) }}"
+                    alt="Original plant leaf"
+                >
+
+                <p>Original uploaded or captured leaf image</p>
+
+            </div>
+
+            <div class="image-box">
+
+                <h3>Grad-CAM Heatmap</h3>
+
+                <img
+                    src="{{ url_for('static', filename=heatmap_path) }}"
+                    alt="Grad-CAM heatmap"
+                >
+
+                <p>
+                    Highlighted regions contributing to the prediction
+                </p>
+
+            </div>
+
+            <div class="image-box">
+
+                <h3>Grad-CAM Overlay</h3>
+
+                <img
+                    src="{{ url_for('static', filename=overlay_path) }}"
+                    alt="Grad-CAM overlay"
+                >
+
+                <p>
+                    Heatmap combined with the original leaf image
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="note">
+
+            <strong>Grad-CAM Note:</strong>
+
+            Grad-CAM shows image regions that influenced the
+            model's prediction. It does not independently confirm
+            disease location or severity.
+
+        </div>
+
+
+        <!-- DOWNLOAD PDF REPORT -->
+
+        <div class="download-section">
+
+            <form
+                method="POST"
+                action="{{ url_for('download_report') }}"
+            >
+
+                <input
+                    type="hidden"
+                    name="disease"
+                    value="{{ result }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="confidence"
+                    value="{{ confidence }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="image_path"
+                    value="{{ image_path }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="heatmap_path"
+                    value="{{ heatmap_path }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="overlay_path"
+                    value="{{ overlay_path }}"
+                >
+
+                <button
+                    type="submit"
+                    class="download-button"
+                >
+                    📄 Download Prediction Report (PDF)
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- DISEASE INFORMATION -->
+
+    {% if disease_details %}
+
+    <section class="info-card">
+
+        <h2>📋 Disease Information & Recommendations</h2>
+
+        <div class="disease-status">
+
+            <h2>{{ disease_details.title }}</h2>
+
+            {% if disease_details.status == "Healthy" %}
+
+                <span class="status healthy">
+                    {{ disease_details.status }}
+                </span>
+
+            {% else %}
+
+                <span class="status">
+                    {{ disease_details.status }}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+        <div class="description">
+
+            <h3>About This Condition</h3>
+
+            <p>{{ disease_details.description }}</p>
+
+        </div>
+
+        <div class="info-grid">
+
+            <div class="info-section">
+
+                <h3>🔍 Symptoms</h3>
+
+                <ul>
+                    {% for item in disease_details.symptoms %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+            <div class="info-section">
+
+                <h3>🦠 Causes</h3>
+
+                <ul>
+                    {% for item in disease_details.causes %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+            <div class="info-section">
+
+                <h3>🛡️ Prevention</h3>
+
+                <ul>
+                    {% for item in disease_details.prevention %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+            <div class="info-section">
+
+                <h3>🌿 Management & Treatment</h3>
+
+                <ul>
+                    {% for item in disease_details.management %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="note">
+
+            <strong>Important:</strong>
+
+            These recommendations are for educational purposes.
+            AI predictions are not a confirmed diagnosis.
+            Consult a local agricultural expert before applying treatments.
+
+        </div>
+
+    </section>
+
+    {% endif %}
+    {% endif %}
+
+</div>
+
+
+<footer>
+    <p>
+        PlantCare AI | Deep Learning Based Plant Disease Detection
+    </p>
+</footer>
+
+
+<!-- LIVE CAMERA JAVASCRIPT -->
+
+<script>
+
+    const video = document.getElementById("cameraVideo");
+    const canvas = document.getElementById("cameraCanvas");
+    const capturedPreview = document.getElementById("capturedPreview");
+
+    const fileInput = document.getElementById("leafFile");
+
+    const startButton = document.getElementById("startCamera");
+    const captureButton = document.getElementById("captureImage");
+    const stopButton = document.getElementById("stopCamera");
+    const retakeButton = document.getElementById("retakeImage");
+
+    const cameraMessage = document.getElementById("cameraMessage");
+
+    let cameraStream = null;
+
+    // Start camera
+
+    startButton.addEventListener("click", async function () {
+
+        try {
+
+            if (
+                !navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia
+            ) {
+                throw new Error(
+                    "Camera is not supported by this browser or connection."
+                );
+            }
+
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: "environment" }
+                },
+                audio: false
+            });
+
+            video.srcObject = cameraStream;
+
+            video.style.display = "block";
+            capturedPreview.style.display = "none";
+
+            await video.play();
+
+            startButton.disabled = true;
+            captureButton.disabled = false;
+            stopButton.disabled = false;
+
+            retakeButton.style.display = "none";
+
+            cameraMessage.textContent =
+                "Camera started. Place the plant leaf in front of the camera.";
+
+        } catch (error) {
+
+            cameraMessage.textContent =
+                "Unable to access camera: " + error.message;
+
+            console.error("Camera error:", error);
+
+        }
+
+    });
+
+
+    // Capture image
+
+    captureButton.addEventListener("click", function () {
+
+        if (!cameraStream) {
+            cameraMessage.textContent =
+                "Please start the camera first.";
+            return;
+        }
+
+        if (!video.videoWidth || !video.videoHeight) {
+            cameraMessage.textContent =
+                "Camera is not ready. Please wait.";
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+
+        context.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        canvas.toBlob(function (blob) {
+
+            if (!blob) {
+                cameraMessage.textContent =
+                    "Unable to capture image.";
+                return;
+            }
+
+            const capturedFile = new File(
+                [blob],
+                "live_plant_capture.jpg",
+                { type: "image/jpeg" }
+            );
+
+            const dataTransfer = new DataTransfer();
+
+            dataTransfer.items.add(capturedFile);
+
+            fileInput.files = dataTransfer.files;
+
+            capturedPreview.src = URL.createObjectURL(blob);
+            capturedPreview.style.display = "block";
+
+            video.style.display = "none";
+
+            captureButton.disabled = true;
+            retakeButton.style.display = "inline-block";
+
+            cameraMessage.textContent =
+                "Image captured successfully! Click Detect Disease to get the result.";
+
+            stopCamera();
+
+        }, "image/jpeg", 0.95);
+
+    });
+
+
+    // Stop camera
+
+    function stopCamera() {
+
+        if (cameraStream) {
+
+            cameraStream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+
+            cameraStream = null;
+        }
+
+        video.srcObject = null;
+
+        startButton.disabled = false;
+        captureButton.disabled = true;
+        stopButton.disabled = true;
+
+        if (video.style.display !== "none") {
+            video.style.display = "none";
+        }
+
+    }
+
+    stopButton.addEventListener("click", function () {
+
+        stopCamera();
+
+        cameraMessage.textContent = "Camera stopped.";
+
+    });
+
+
+    // Retake image
+
+    retakeButton.addEventListener("click", function () {
+
+        fileInput.value = "";
+
+        capturedPreview.style.display = "none";
+        retakeButton.style.display = "none";
+
+        cameraMessage.textContent =
+            "Start the camera to capture another image.";
+
+        startButton.disabled = false;
+
+    });
+
+
+    // Release camera before form submission
+
+    document.getElementById("predictionForm").addEventListener(
+        "submit",
+        function (event) {
+
+            const hasUpload =
+                fileInput.files && fileInput.files.length > 0;
+
+            if (!hasUpload) {
+
+                event.preventDefault();
+
+                cameraMessage.textContent =
+                    "Please upload an image or capture one using the camera.";
+
+                return;
+            }
+
+            stopCamera();
+
+            document.getElementById("predictButton").disabled = true;
+
+            document.getElementById("predictButton").textContent =
+                "Processing Image...";
+
+        }
+    );
+
+    window.addEventListener("pagehide", stopCamera);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+instance/
+.vscode/
+.DS_Store
+
+# Database files
+*.db
+
+# Dataset
+dataset/
+
+
+# Generated PDF reports
+static/reports/*.pdf
+
+# Uploaded images and generated predictions
+static/uploads/*
+static/reports/*.pdf
+

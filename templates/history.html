@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prediction History | PlantCare AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f8f3;
+            color: #243b2b;
+        }
+
+        header {
+            background: #176b3a;
+            color: white;
+            padding: 22px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 25px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 35px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #176b3a;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #65776a;
+            margin-bottom: 30px;
+        }
+
+        .history-count {
+            background: #e4f4e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            color: #176b3a;
+            font-weight: bold;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+        }
+
+        .history-card img {
+            width: 100%;
+            height: 210px;
+            object-fit: contain;
+            background: #f5faf6;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .history-card h3 {
+            color: #176b3a;
+            margin-bottom: 12px;
+            font-size: 19px;
+        }
+
+        .history-card p {
+            margin: 9px 0;
+            color: #596b60;
+            line-height: 1.5;
+        }
+
+        .confidence {
+            color: #176b3a;
+            font-weight: bold;
+        }
+
+        .view-images {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .view-images a {
+            flex: 1;
+            text-align: center;
+            background: #e8f5ec;
+            color: #176b3a;
+            padding: 10px 5px;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .view-images a:hover {
+            background: #d3ebda;
+        }
+
+        .empty {
+            background: white;
+            text-align: center;
+            padding: 50px 20px;
+            border-radius: 14px;
+            color: #65776a;
+        }
+
+        .empty h2 {
+            color: #176b3a;
+            margin-bottom: 12px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            background: #21864b;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        footer {
+            background: #176b3a;
+            color: white;
+            text-align: center;
+            padding: 22px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 850px) {
+            .history-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌿 PlantCare AI</h2>
+    <a href="/">← Back to Home</a>
+</header>
+
+<div class="container">
+
+    <h1>📋 Prediction History</h1>
+
+    <p class="subtitle">
+        View your previously analysed plant leaf images and predictions.
+    </p>
+
+    <div class="history-count">
+        Total Predictions: {{ records|length }}
+    </div>
+
+    {% if records %}
+
+    <div class="history-grid">
+
+        {% for record in records %}
+
+        <div class="history-card">
+
+            <img
+                src="{{ url_for('static', filename=record['image_path']) }}"
+                alt="Uploaded leaf image"
+            >
+
+            <h3>
+                {{ record['disease'].replace('_', ' ').replace('___', ' - ') }}
+            </h3>
+
+            <p>
+                <strong>Confidence:</strong>
+                <span class="confidence">
+                    {{ "%.2f"|format(record['confidence']) }}%
+                </span>
+            </p>
+
+            <p>
+                <strong>Date:</strong>
+                {{ record['created_at'] }}
+            </p>
+
+            <div class="view-images">
+
+                <a
+                    href="{{ url_for('static', filename=record['heatmap_path']) }}"
+                    target="_blank"
+                >
+                    Heatmap
+                </a>
+
+                <a
+                    href="{{ url_for('static', filename=record['overlay_path']) }}"
+                    target="_blank"
+                >
+                    Overlay
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty">
+        <h2>No Prediction History Yet</h2>
+
+        <p>
+            Upload a plant leaf image to create your first prediction.
+        </p>
+
+        <a href="/" class="back-button">
+            Detect Disease
+        </a>
+    </div>
+
+    {% endif %}
+
+</div>
+
+<footer>
+    <p>PlantCare AI | Deep Learning Based Plant Disease Detection</p>
+</footer>
+
+</body>
+</html>
